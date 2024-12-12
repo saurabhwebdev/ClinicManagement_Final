@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if clinic_settings and clinic_settings.clinic_name %}{{ clinic_settings.clinic_name }}{% else %}Clinic Management System{% endif %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <div class="bg-white w-64 px-8 py-4 border-r">
+            <h1 class="text-2xl font-bold text-gray-800 mb-8">
+                {% if clinic_settings and clinic_settings.clinic_name %}
+                    {{ clinic_settings.clinic_name }}
+                {% else %}
+                    Clinic MS
+                {% endif %}
+            </h1>
+            <nav>
+                <a href="{{ url_for('main.dashboard') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">
+                    Dashboard
+                </a>
+                <a href="{{ url_for('main.patients') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">
+                    Patients
+                </a>
+                <a href="{{ url_for('main.appointments') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">
+                    Appointments
+                </a>
+                <a href="{{ url_for('main.prescriptions') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">
+                    Prescriptions
+                </a>
+                <a href="{{ url_for('main.invoices') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">
+                    Invoices
+                </a>
+                <a href="{{ url_for('main.reports') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">
+                    Reports
+                </a>
+                <a href="{{ url_for('main.settings') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100">
+                    Settings
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="block py-2.5 px-4 rounded transition duration-200 hover:bg-gray-100 text-red-600">
+                    Logout
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 p-10">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html> 

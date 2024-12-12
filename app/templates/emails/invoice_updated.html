@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f8f9fa; padding: 20px; text-align: center; }
+        .clinic-name { color: #2563eb; font-size: 24px; font-weight: bold; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; }
+        .section-title { color: #1f2937; font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+        .info-item { margin-bottom: 5px; }
+        .label { color: #6b7280; font-size: 14px; }
+        .value { color: #111827; font-weight: 500; }
+        .amount { text-align: right; }
+        .total { font-size: 18px; font-weight: bold; color: #1f2937; }
+        .footer { margin-top: 30px; text-align: center; color: #6b7280; font-size: 14px; }
+        .alert { background-color: #fef3c7; color: #92400e; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="clinic-name">{{ settings.clinic_name }}</div>
+        </div>
+
+        <div class="alert">
+            This invoice has been updated. Please review the changes below.
+        </div>
+
+        <p>Dear {{ patient.full_name }},</p>
+        
+        <p>Your invoice has been generated. Here are the details:</p>
+
+        <div class="section">
+            <div class="section-title">Invoice Information</div>
+            <div class="info-item">
+                <div class="label">Invoice Number</div>
+                <div class="value">{{ invoice.invoice_number }}</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Date</div>
+                <div class="value">{{ invoice.date.strftime('%B %d, %Y') }}</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Due Date</div>
+                <div class="value">{{ invoice.due_date.strftime('%B %d, %Y') if invoice.due_date else 'Not specified' }}</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Items</div>
+            {% for item in invoice.items %}
+            <div class="info-item">
+                <div class="value">{{ item.description }}</div>
+                <div class="amount">
+                    {{ settings.currency }} {{ "%.2f"|format(item.unit_price) }} x {{ item.quantity }} = 
+                    {{ settings.currency }} {{ "%.2f"|format(item.total) }}
+                </div>
+            </div>
+            {% endfor %}
+            
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid #e5e7eb;">
+            
+            <div class="info-item">
+                <div class="label">Subtotal</div>
+                <div class="amount">{{ settings.currency }} {{ "%.2f"|format(invoice.subtotal) }}</div>
+            </div>
+            {% if invoice.tax_rate > 0 %}
+            <div class="info-item">
+                <div class="label">Tax ({{ "%.1f"|format(invoice.tax_rate) }}%)</div>
+                <div class="amount">{{ settings.currency }} {{ "%.2f"|format(invoice.tax_amount) }}</div>
+            </div>
+            {% endif %}
+            {% if invoice.discount > 0 %}
+            <div class="info-item">
+                <div class="label">Discount</div>
+                <div class="amount">-{{ settings.currency }} {{ "%.2f"|format(invoice.discount) }}</div>
+            </div>
+            {% endif %}
+            <div class="info-item">
+                <div class="total">Total: {{ settings.currency }} {{ "%.2f"|format(invoice.total) }}</div>
+            </div>
+        </div>
+
+        {% if invoice.notes %}
+        <div class="section">
+            <div class="section-title">Additional Notes</div>
+            <p>{{ invoice.notes }}</p>
+        </div>
+        {% endif %}
+
+        <div class="section">
+            <div class="section-title">Payment Information</div>
+            <p>Please make your payment before the due date. For any questions, please contact us:</p>
+            <div class="info-item">
+                <div class="label">Phone</div>
+                <div class="value">{{ settings.country_code }} {{ settings.phone }}</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Email</div>
+                <div class="value">{{ settings.email }}</div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for choosing {{ settings.clinic_name }}</p>
+        </div>
+    </div>
+</body>
+</html> 

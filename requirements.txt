@@ -1,0 +1,10 @@
+flask
+flask-sqlalchemy
+flask-login
+flask-migrate
+python-dotenv
+werkzeug
+email-validator
+flask-migrate
+pdfkit==1.0.0
+wkhtmltopdf==0.2 

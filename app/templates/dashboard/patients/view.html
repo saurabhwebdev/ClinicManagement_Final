@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Patient Details</h1>
+        <div class="space-x-2">
+            <a href="{{ url_for('main.edit_patient', id=patient.id) }}"
+               class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+                Edit Patient
+            </a>
+            <a href="{{ url_for('main.patients') }}"
+               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Personal Information -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4">Personal Information</h2>
+            <dl class="grid grid-cols-1 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Registration Number</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ patient.registration_number }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Full Name</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ patient.full_name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Date of Birth</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                        {% if patient.date_of_birth %}
+                            {{ patient.date_of_birth.strftime('%B %d, %Y') }}
+                            ({{ ((today - patient.date_of_birth).days / 365.25) | int }} years)
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Gender</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ patient.gender or 'Not specified' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Blood Group</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ patient.blood_group or 'Not specified' }}</dd>
+                </div>
+            </dl>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4">Contact Information</h2>
+            <dl class="grid grid-cols-1 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Phone</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ patient.phone or 'Not provided' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Email</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ patient.email or 'Not provided' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Address</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ patient.address or 'Not provided' }}</dd>
+                </div>
+            </dl>
+        </div>
+
+        <!-- Medical Information -->
+        <div class="bg-gray-50 p-4 rounded-lg md:col-span-2">
+            <h2 class="text-lg font-semibold mb-4">Medical Information</h2>
+            <dl class="grid grid-cols-1 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Medical History</dt>
+                    <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line">{{ patient.medical_history or 'No medical history recorded' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Allergies</dt>
+                    <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line">{{ patient.allergies or 'No allergies recorded' }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Reports</h1>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Patient Report -->
+        <div class="bg-gray-50 p-6 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4">Patient Report</h2>
+            <p class="text-gray-600 mb-4">Detailed report of all patients including their history and appointments.</p>
+            <form method="POST" action="{{ url_for('main.generate_patient_report') }}" class="space-y-4">
+                <div class="flex items-center space-x-4">
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="date_range" value="all" checked class="form-radio">
+                        <span class="ml-2">All Time</span>
+                    </label>
+                    <label class="inline-flex items-center">
+                        <input type="radio" name="date_range" value="month" class="form-radio">
+                        <span class="ml-2">This Month</span>
+                    </label>
+                </div>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Generate PDF
+                </button>
+            </form>
+        </div>
+
+        <!-- Appointment Report -->
+        <div class="bg-gray-50 p-6 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4">Appointment Report</h2>
+            <p class="text-gray-600 mb-4">Summary of appointments with status and patient details.</p>
+            <form method="POST" action="{{ url_for('main.generate_appointment_report') }}" class="space-y-4">
+                <div class="space-y-2">
+                    <label class="block">
+                        <span class="text-gray-700">Date Range</span>
+                        <input type="date" name="start_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </label>
+                    <label class="block">
+                        <span class="text-gray-700">To</span>
+                        <input type="date" name="end_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                    </label>
+                </div>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Generate PDF
+                </button>
+            </form>
+        </div>
+
+        <!-- Financial Report -->
+        <div class="bg-gray-50 p-6 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4">Financial Report</h2>
+            <p class="text-gray-600 mb-4">Detailed revenue report including invoices and payments.</p>
+            <form method="POST" action="{{ url_for('main.generate_financial_report') }}" class="space-y-4">
+                <div class="space-y-2">
+                    <select name="period" class="block w-full rounded-md border-gray-300 shadow-sm">
+                        <option value="month">This Month</option>
+                        <option value="quarter">This Quarter</option>
+                        <option value="year">This Year</option>
+                        <option value="custom">Custom Range</option>
+                    </select>
+                    <div class="custom-dates hidden">
+                        <label class="block">
+                            <span class="text-gray-700">From</span>
+                            <input type="date" name="start_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        </label>
+                        <label class="block">
+                            <span class="text-gray-700">To</span>
+                            <input type="date" name="end_date" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Generate PDF
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelector('select[name="period"]').addEventListener('change', function() {
+    const customDates = document.querySelector('.custom-dates');
+    if (this.value === 'custom') {
+        customDates.classList.remove('hidden');
+    } else {
+        customDates.classList.add('hidden');
+    }
+});
+</script>
+{% endblock %} 

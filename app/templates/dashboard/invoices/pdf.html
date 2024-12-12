@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page {
+            margin: 2.5cm 1.5cm;
+            size: A4;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .clinic-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+            margin-bottom: 5px;
+        }
+        .clinic-info {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .invoice-title {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            color: #1f2937;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .grid {
+            display: table;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .grid-row {
+            display: table-row;
+        }
+        .grid-cell {
+            display: table-cell;
+            padding: 5px;
+            vertical-align: top;
+        }
+        .label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        .value {
+            font-size: 14px;
+            color: #333;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .items-table th {
+            background-color: #f3f4f6;
+            padding: 10px;
+            text-align: left;
+            font-size: 12px;
+            color: #666;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .items-table td {
+            padding: 10px;
+            font-size: 14px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        .amount {
+            text-align: right;
+        }
+        .totals {
+            width: 300px;
+            margin-left: auto;
+        }
+        .total-row {
+            display: table-row;
+        }
+        .total-label {
+            display: table-cell;
+            padding: 5px;
+            text-align: right;
+            font-size: 14px;
+            color: #666;
+        }
+        .total-value {
+            display: table-cell;
+            padding: 5px;
+            text-align: right;
+            font-size: 14px;
+            color: #333;
+        }
+        .grand-total {
+            font-weight: bold;
+            font-size: 16px;
+            color: #1f2937;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+        .status-paid {
+            color: #059669;
+            font-weight: bold;
+        }
+        .status-pending {
+            color: #d97706;
+            font-weight: bold;
+        }
+        .status-cancelled {
+            color: #dc2626;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Clinic Header -->
+        <div class="header">
+            <div class="clinic-name">{{ settings.clinic_name }}</div>
+            <div class="clinic-info">{{ settings.address }}</div>
+            <div class="clinic-info">Phone: {{ settings.country_code }} {{ settings.phone }}</div>
+            <div class="clinic-info">Email: {{ settings.email }}</div>
+        </div>
+
+        <div class="invoice-title">
+            INVOICE #{{ invoice.invoice_number }}
+            <div style="font-size: 14px; margin-top: 5px;" class="status-{{ invoice.status }}">
+                {{ invoice.status|upper }}
+                {% if invoice.status == 'paid' %}
+                (Paid on {{ invoice.payment_date.strftime('%B %d, %Y') }})
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Invoice Info Grid -->
+        <div class="grid">
+            <div class="grid-row">
+                <div class="grid-cell" style="width: 50%;">
+                    <div class="label">Bill To:</div>
+                    <div class="value">{{ invoice.patient.full_name }}</div>
+                    <div class="value">{{ invoice.patient.registration_number }}</div>
+                    {% if invoice.patient.phone %}
+                    <div class="value">{{ invoice.patient.phone }}</div>
+                    {% endif %}
+                    {% if invoice.patient.email %}
+                    <div class="value">{{ invoice.patient.email }}</div>
+                    {% endif %}
+                </div>
+                <div class="grid-cell" style="width: 50%;">
+                    <div class="label">Invoice Date:</div>
+                    <div class="value">{{ invoice.date.strftime('%B %d, %Y') }}</div>
+                    {% if invoice.due_date %}
+                    <div class="label" style="margin-top: 10px;">Due Date:</div>
+                    <div class="value">{{ invoice.due_date.strftime('%B %d, %Y') }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Table -->
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th style="width: 50%;">Description</th>
+                    <th style="width: 15%;" class="amount">Quantity</th>
+                    <th style="width: 15%;" class="amount">Unit Price</th>
+                    <th style="width: 20%;" class="amount">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in invoice.items %}
+                <tr>
+                    <td>{{ item.description }}</td>
+                    <td class="amount">{{ item.quantity }}</td>
+                    <td class="amount">{{ settings.currency }} {{ "%.2f"|format(item.unit_price) }}</td>
+                    <td class="amount">{{ settings.currency }} {{ "%.2f"|format(item.total) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <!-- Totals -->
+        <div class="totals">
+            <div class="total-row">
+                <div class="total-label">Subtotal:</div>
+                <div class="total-value">{{ settings.currency }} {{ "%.2f"|format(invoice.subtotal) }}</div>
+            </div>
+            {% if invoice.tax_rate > 0 %}
+            <div class="total-row">
+                <div class="total-label">Tax ({{ "%.1f"|format(invoice.tax_rate) }}%):</div>
+                <div class="total-value">{{ settings.currency }} {{ "%.2f"|format(invoice.tax_amount) }}</div>
+            </div>
+            {% endif %}
+            {% if invoice.discount > 0 %}
+            <div class="total-row">
+                <div class="total-label">Discount:</div>
+                <div class="total-value">-{{ settings.currency }} {{ "%.2f"|format(invoice.discount) }}</div>
+            </div>
+            {% endif %}
+            <div class="total-row" style="border-top: 1px solid #e5e7eb; margin-top: 5px; padding-top: 5px;">
+                <div class="total-label grand-total">Total:</div>
+                <div class="total-value grand-total">{{ settings.currency }} {{ "%.2f"|format(invoice.total) }}</div>
+            </div>
+        </div>
+
+        {% if invoice.notes %}
+        <!-- Notes -->
+        <div class="section" style="margin-top: 30px;">
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Notes:</div>
+            <div style="font-size: 14px;">{{ invoice.notes }}</div>
+        </div>
+        {% endif %}
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Thank you for choosing {{ settings.clinic_name }}</p>
+            {% if settings.website %}
+            <p>{{ settings.website }}</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html> 

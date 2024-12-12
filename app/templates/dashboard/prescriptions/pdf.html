@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm 1.5cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 20px;
+        }
+        .clinic-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2563eb;
+            margin: 0;
+        }
+        .clinic-details {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0;
+        }
+        .prescription-info {
+            margin-bottom: 20px;
+        }
+        .prescription-number {
+            float: right;
+            font-size: 14px;
+            color: #666;
+        }
+        .patient-info {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 5px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            font-size: 14px;
+        }
+        .label {
+            color: #666;
+            font-size: 12px;
+        }
+        .value {
+            color: #333;
+            font-weight: 500;
+        }
+        .medicines {
+            margin-bottom: 30px;
+        }
+        .medicine-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f9fafb;
+            border-radius: 4px;
+        }
+        .medicine-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .medicine-details {
+            font-size: 14px;
+            color: #4b5563;
+            margin-left: 15px;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: right;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+        }
+        .doctor-signature {
+            font-weight: bold;
+        }
+        .qr-code {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="clinic-name">{{ settings.clinic_name }}</h1>
+        <p class="clinic-details">
+            {{ settings.doctor_name }}
+            {% if settings.registration_number %}
+            <br>Reg. No: {{ settings.registration_number }}
+            {% endif %}
+        </p>
+        <p class="clinic-details">
+            {% if settings.address %}{{ settings.address }}<br>{% endif %}
+            Phone: {{ settings.country_code }} {{ settings.phone }}
+            {% if settings.email %}<br>Email: {{ settings.email }}{% endif %}
+        </p>
+    </div>
+
+    <div class="prescription-info">
+        <div class="prescription-number">
+            Prescription #: {{ prescription.prescription_number }}<br>
+            Date: {{ prescription.date.strftime('%B %d, %Y') }}
+        </div>
+    </div>
+
+    <div class="patient-info">
+        <div class="section-title">Patient Information</div>
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="label">Name</div>
+                <div class="value">{{ prescription.patient.full_name }}</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Registration Number</div>
+                <div class="value">{{ prescription.patient.registration_number }}</div>
+            </div>
+            {% if prescription.patient.date_of_birth %}
+            <div class="info-item">
+                <div class="label">Age</div>
+                <div class="value">{{ prescription.patient.age }} years</div>
+            </div>
+            {% endif %}
+            {% if prescription.patient.gender %}
+            <div class="info-item">
+                <div class="label">Gender</div>
+                <div class="value">{{ prescription.patient.gender }}</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if prescription.diagnosis %}
+    <div class="diagnosis">
+        <div class="section-title">Diagnosis</div>
+        <p>{{ prescription.diagnosis }}</p>
+    </div>
+    {% endif %}
+
+    <div class="medicines">
+        <div class="section-title">Prescribed Medicines</div>
+        {% for medicine in prescription.medicines %}
+        <div class="medicine-item">
+            <div class="medicine-name">{{ loop.index }}. {{ medicine.medicine_name }}</div>
+            <div class="medicine-details">
+                {% if medicine.dosage %}✓ Dosage: {{ medicine.dosage }}{% endif %}
+                {% if medicine.frequency %}✓ Frequency: {{ medicine.frequency }}{% endif %}
+                {% if medicine.duration %}✓ Duration: {{ medicine.duration }}{% endif %}
+                {% if medicine.instructions %}✓ Instructions: {{ medicine.instructions }}{% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if prescription.notes %}
+    <div class="notes">
+        <div class="section-title">Additional Notes</div>
+        <p>{{ prescription.notes }}</p>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        <div class="doctor-signature">
+            {{ settings.doctor_name }}<br>
+            {% if settings.registration_number %}
+            Registration No: {{ settings.registration_number }}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="qr-code">
+        <!-- You can add a QR code here if needed -->
+    </div>
+</body>
+</html> 

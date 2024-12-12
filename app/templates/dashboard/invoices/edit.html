@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Edit Invoice #{{ invoice.invoice_number }}</h1>
+    </div>
+
+    <form method="POST" class="space-y-6" id="invoiceForm">
+        <!-- Patient and Related Info -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4">Patient Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Select Patient *
+                    </label>
+                    <select name="patient_id" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        <option value="">Choose a patient</option>
+                        {% for patient in patients %}
+                        <option value="{{ patient.id }}" {% if patient.id == invoice.patient_id %}selected{% endif %}>
+                            {{ patient.registration_number }} - {{ patient.full_name }}
+                            {% if patient.phone %}({{ patient.phone }}){% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Related Appointment
+                    </label>
+                    <select name="appointment_id"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        <option value="">Select appointment (optional)</option>
+                        {% for appointment in appointments %}
+                        <option value="{{ appointment.id }}" {% if appointment.id == invoice.appointment_id %}selected{% endif %}>
+                            {{ appointment.date.strftime('%B %d, %Y') }} - 
+                            {{ appointment.time.strftime('%I:%M %p') }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Related Prescription
+                    </label>
+                    <select name="prescription_id"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        <option value="">Select prescription (optional)</option>
+                        {% for prescription in prescriptions %}
+                        <option value="{{ prescription.id }}" {% if prescription.id == invoice.prescription_id %}selected{% endif %}>
+                            {{ prescription.prescription_number }} - 
+                            {{ prescription.date.strftime('%B %d, %Y') }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoice Details -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4">Invoice Details</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Date *
+                    </label>
+                    <input type="date" name="date" required
+                           value="{{ invoice.date.strftime('%Y-%m-%d') }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Due Date
+                    </label>
+                    <input type="date" name="due_date"
+                           value="{{ invoice.due_date.strftime('%Y-%m-%d') if invoice.due_date }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+                </div>
+            </div>
+        </div>
+
+        <!-- Invoice Items -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">Invoice Items</h2>
+                <button type="button" onclick="addItem()"
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Add Item
+                </button>
+            </div>
+            
+            <div id="itemsContainer" class="space-y-4">
+                {% for item in invoice.items %}
+                <div class="item-row bg-white p-4 rounded-lg shadow-sm">
+                    <div class="grid grid-cols-12 gap-4">
+                        <div class="col-span-5">
+                            <input type="text" name="description[]" required value="{{ item.description }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+                        </div>
+                        <div class="col-span-2">
+                            <input type="number" name="quantity[]" required min="1" value="{{ item.quantity }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                   onchange="calculateRowTotal(this)">
+                        </div>
+                        <div class="col-span-2">
+                            <input type="number" name="unit_price[]" required step="0.01" min="0" value="{{ item.unit_price }}"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                   onchange="calculateRowTotal(this)">
+                        </div>
+                        <div class="col-span-2">
+                            <input type="text" class="row-total w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50" 
+                                   readonly value="{{ "%.2f"|format(item.total) }}">
+                        </div>
+                        <div class="col-span-1">
+                            <button type="button" onclick="removeItem(this)"
+                                    class="text-red-600 hover:text-red-900">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Totals -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4">Totals</h2>
+            <div class="space-y-4">
+                <div class="flex justify-end items-center gap-4">
+                    <label class="text-sm font-medium text-gray-700">
+                        Subtotal:
+                    </label>
+                    <div class="w-48">
+                        <input type="text" id="subtotal" readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                               value="{{ "%.2f"|format(invoice.subtotal) }}">
+                    </div>
+                </div>
+
+                <div class="flex justify-end items-center gap-4">
+                    <label class="text-sm font-medium text-gray-700">
+                        Tax Rate (%):
+                    </label>
+                    <div class="w-48">
+                        <input type="number" name="tax_rate" id="taxRate" step="0.01" min="0"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                               value="{{ "%.2f"|format(invoice.tax_rate) }}" onchange="calculateTotals()">
+                    </div>
+                </div>
+
+                <div class="flex justify-end items-center gap-4">
+                    <label class="text-sm font-medium text-gray-700">
+                        Tax Amount:
+                    </label>
+                    <div class="w-48">
+                        <input type="text" id="taxAmount" readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50"
+                               value="{{ "%.2f"|format(invoice.tax_amount) }}">
+                    </div>
+                </div>
+
+                <div class="flex justify-end items-center gap-4">
+                    <label class="text-sm font-medium text-gray-700">
+                        Discount:
+                    </label>
+                    <div class="w-48">
+                        <input type="number" name="discount" id="discount" step="0.01" min="0"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                               value="{{ "%.2f"|format(invoice.discount) }}" onchange="calculateTotals()">
+                    </div>
+                </div>
+
+                <div class="flex justify-end items-center gap-4">
+                    <label class="text-sm font-medium text-gray-700 font-bold">
+                        Total:
+                    </label>
+                    <div class="w-48">
+                        <input type="text" id="total" readonly
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 font-bold"
+                               value="{{ "%.2f"|format(invoice.total) }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4">Additional Notes</h2>
+            <textarea name="notes" rows="3"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      placeholder="Add any additional notes here...">{{ invoice.notes }}</textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="flex justify-end gap-4">
+            <a href="{{ url_for('invoice.view_invoice', id=invoice.id) }}"
+               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                Cancel
+            </a>
+            <button type="submit"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                Update Invoice
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Item Template -->
+<template id="itemTemplate">
+    <div class="item-row bg-white p-4 rounded-lg shadow-sm">
+        <div class="grid grid-cols-12 gap-4">
+            <div class="col-span-5">
+                <input type="text" name="description[]" required placeholder="Item description"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500">
+            </div>
+            <div class="col-span-2">
+                <input type="number" name="quantity[]" required min="1" value="1"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                       onchange="calculateRowTotal(this)">
+            </div>
+            <div class="col-span-2">
+                <input type="number" name="unit_price[]" required step="0.01" min="0"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                       onchange="calculateRowTotal(this)">
+            </div>
+            <div class="col-span-2">
+                <input type="text" class="row-total w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50" 
+                       readonly value="0.00">
+            </div>
+            <div class="col-span-1">
+                <button type="button" onclick="removeItem(this)"
+                        class="text-red-600 hover:text-red-900">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+// Same JavaScript as new.html
+function addItem() {
+    const container = document.getElementById('itemsContainer');
+    const template = document.getElementById('itemTemplate');
+    const clone = template.content.cloneNode(true);
+    container.appendChild(clone);
+}
+
+function removeItem(button) {
+    const row = button.closest('.item-row');
+    row.remove();
+    calculateTotals();
+}
+
+function calculateRowTotal(input) {
+    const row = input.closest('.item-row');
+    const quantity = parseFloat(row.querySelector('input[name="quantity[]"]').value) || 0;
+    const unitPrice = parseFloat(row.querySelector('input[name="unit_price[]"]').value) || 0;
+    const total = quantity * unitPrice;
+    row.querySelector('.row-total').value = total.toFixed(2);
+    calculateTotals();
+}
+
+function calculateTotals() {
+    const rowTotals = document.querySelectorAll('.row-total');
+    let subtotal = 0;
+    
+    rowTotals.forEach(input => {
+        subtotal += parseFloat(input.value) || 0;
+    });
+
+    const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+    const discount = parseFloat(document.getElementById('discount').value) || 0;
+    
+    const taxAmount = subtotal * (taxRate / 100);
+    const total = subtotal + taxAmount - discount;
+
+    document.getElementById('subtotal').value = subtotal.toFixed(2);
+    document.getElementById('taxAmount').value = taxAmount.toFixed(2);
+    document.getElementById('total').value = total.toFixed(2);
+}
+
+// Calculate totals on page load
+document.addEventListener('DOMContentLoaded', function() {
+    calculateTotals();
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f8f9fa; padding: 20px; text-align: center; }
+        .clinic-name { color: #2563eb; font-size: 24px; font-weight: bold; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; }
+        .section-title { color: #1f2937; font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .info-item { margin-bottom: 5px; }
+        .label { color: #6b7280; font-size: 14px; }
+        .value { color: #111827; font-weight: 500; }
+        .footer { margin-top: 30px; text-align: center; color: #6b7280; font-size: 14px; }
+        .important-note { background-color: #fef3c7; color: #92400e; padding: 10px; border-radius: 4px; margin: 15px 0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="clinic-name">{{ settings.clinic_name }}</div>
+        </div>
+
+        <p>Dear {{ patient.full_name }},</p>
+        
+        <p>Your appointment has been scheduled successfully at {{ settings.clinic_name }}.</p>
+
+        <div class="section">
+            <div class="section-title">Appointment Details</div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="label">Appointment Number</div>
+                    <div class="value">{{ appointment.appointment_number }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Date</div>
+                    <div class="value">{{ appointment.date.strftime('%B %d, %Y') }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Time</div>
+                    <div class="value">{{ appointment.time.strftime('%I:%M %p') }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Duration</div>
+                    <div class="value">{{ appointment.duration }} minutes</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Doctor</div>
+                    <div class="value">{{ settings.doctor_name }}</div>
+                </div>
+            </div>
+            {% if appointment.reason %}
+            <div class="info-item" style="margin-top: 10px;">
+                <div class="label">Reason for Visit</div>
+                <div class="value">{{ appointment.reason }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="important-note">
+            Please arrive 10 minutes before your scheduled appointment time.
+            If you need to reschedule or cancel, please contact us at least 24 hours in advance.
+        </div>
+
+        <div class="section">
+            <div class="section-title">Clinic Information</div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="label">Phone</div>
+                    <div class="value">{{ settings.country_code }} {{ settings.phone }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="label">Email</div>
+                    <div class="value">{{ settings.email }}</div>
+                </div>
+            </div>
+            {% if settings.address %}
+            <div class="info-item" style="margin-top: 10px;">
+                <div class="label">Address</div>
+                <div class="value">{{ settings.address }}</div>
+            </div>
+            {% endif %}
+            {% if settings.opening_time and settings.closing_time %}
+            <div class="info-item">
+                <div class="label">Working Hours</div>
+                <div class="value">{{ settings.opening_time.strftime('%I:%M %p') }} - {{ settings.closing_time.strftime('%I:%M %p') }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="footer">
+            <p>Thank you for choosing {{ settings.clinic_name }}</p>
+            {% if settings.registration_number %}
+            <small>Registration No: {{ settings.registration_number }}</small>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html> 

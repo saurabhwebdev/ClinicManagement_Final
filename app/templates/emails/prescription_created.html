@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f8f9fa; padding: 20px; text-align: center; }
+        .clinic-name { color: #2563eb; font-size: 24px; font-weight: bold; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; }
+        .section-title { color: #1f2937; font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+        .info-item { margin-bottom: 5px; }
+        .label { color: #6b7280; font-size: 14px; }
+        .value { color: #111827; font-weight: 500; }
+        .footer { margin-top: 30px; text-align: center; color: #6b7280; font-size: 14px; }
+        .medicine-list { background-color: #f3f4f6; padding: 10px; border-radius: 4px; }
+        .medicine-item { padding: 10px; border-bottom: 1px solid #e5e7eb; }
+        .medicine-item:last-child { border-bottom: none; }
+        .medicine-name { color: #1f2937; font-weight: 600; }
+        .medicine-details { margin-left: 15px; color: #4b5563; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="clinic-name">{{ settings.clinic_name }}</div>
+        </div>
+
+        <p>Dear {{ patient.full_name }},</p>
+        
+        <p>Your prescription from {{ settings.clinic_name }} is ready. Please find the details below:</p>
+
+        <div class="section">
+            <div class="section-title">Prescription Details</div>
+            <div class="info-item">
+                <div class="label">Prescription Number</div>
+                <div class="value">{{ prescription.prescription_number }}</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Date</div>
+                <div class="value">{{ prescription.date.strftime('%B %d, %Y') }}</div>
+            </div>
+            {% if prescription.diagnosis %}
+            <div class="info-item">
+                <div class="label">Diagnosis</div>
+                <div class="value">{{ prescription.diagnosis }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="section">
+            <div class="section-title">Prescribed Medicines</div>
+            <div class="medicine-list">
+                {% for medicine in prescription.medicines %}
+                <div class="medicine-item">
+                    <div class="medicine-name">{{ medicine.medicine_name }}</div>
+                    <div class="medicine-details">
+                        <div>Dosage: {{ medicine.dosage }}</div>
+                        <div>Frequency: {{ medicine.frequency }}</div>
+                        <div>Duration: {{ medicine.duration }}</div>
+                        {% if medicine.instructions %}
+                        <div>Instructions: {{ medicine.instructions }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if prescription.notes %}
+        <div class="section">
+            <div class="section-title">Additional Notes</div>
+            <div class="value">{{ prescription.notes }}</div>
+        </div>
+        {% endif %}
+
+        <div class="section">
+            <div class="section-title">Doctor Information</div>
+            <div class="info-item">
+                <div class="label">Doctor</div>
+                <div class="value">{{ settings.doctor_name }}</div>
+            </div>
+            {% if settings.registration_number %}
+            <div class="info-item">
+                <div class="label">Registration Number</div>
+                <div class="value">{{ settings.registration_number }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="section">
+            <div class="section-title">Clinic Information</div>
+            <div class="info-item">
+                <div class="label">Phone</div>
+                <div class="value">{{ settings.country_code }} {{ settings.phone }}</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Email</div>
+                <div class="value">{{ settings.email }}</div>
+            </div>
+            {% if settings.address %}
+            <div class="info-item">
+                <div class="label">Address</div>
+                <div class="value">{{ settings.address }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="footer">
+            <p>Thank you for choosing {{ settings.clinic_name }}</p>
+            <small>This is an electronic prescription generated on {{ prescription.created_at.strftime('%B %d, %Y at %I:%M %p') }}</small>
+        </div>
+    </div>
+</body>
+</html> 

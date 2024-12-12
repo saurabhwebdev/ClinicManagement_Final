@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Prescription Details</h1>
+        <div class="space-x-2">
+            <a href="{{ url_for('prescription.edit_prescription', id=prescription.id) }}"
+               class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+                Edit Prescription
+            </a>
+            <a href="{{ url_for('prescription.prescriptions') }}"
+               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Prescription Information -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4">Prescription Information</h2>
+            <dl class="grid grid-cols-1 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Prescription Number</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ prescription.prescription_number }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Date</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ prescription.date.strftime('%B %d, %Y') }}</dd>
+                </div>
+                {% if prescription.diagnosis %}
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Diagnosis</dt>
+                    <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line">{{ prescription.diagnosis }}</dd>
+                </div>
+                {% endif %}
+            </dl>
+        </div>
+
+        <!-- Patient Information -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4">Patient Information</h2>
+            <dl class="grid grid-cols-1 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Name</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ prescription.patient.full_name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Registration Number</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ prescription.patient.registration_number }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Phone</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ prescription.patient.phone or 'Not provided' }}</dd>
+                </div>
+            </dl>
+        </div>
+
+        <!-- Medicines -->
+        <div class="bg-gray-50 p-4 rounded-lg md:col-span-2">
+            <h2 class="text-lg font-semibold mb-4">Prescribed Medicines</h2>
+            <div class="space-y-4">
+                {% for medicine in prescription.medicines %}
+                <div class="bg-white p-4 rounded border border-gray-200">
+                    <div class="font-medium text-gray-900">{{ medicine.medicine_name }}</div>
+                    <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Dosage</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ medicine.dosage or 'Not specified' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Frequency</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ medicine.frequency or 'Not specified' }}</dd>
+                        </div>
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Duration</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ medicine.duration or 'Not specified' }}</dd>
+                        </div>
+                        {% if medicine.instructions %}
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Instructions</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ medicine.instructions }}</dd>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if prescription.notes %}
+        <!-- Additional Notes -->
+        <div class="bg-gray-50 p-4 rounded-lg md:col-span-2">
+            <h2 class="text-lg font-semibold mb-4">Additional Notes</h2>
+            <div class="text-sm text-gray-900 whitespace-pre-line">{{ prescription.notes }}</div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

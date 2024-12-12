@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Appointment Details</h1>
+        <div class="space-x-2">
+            <a href="{{ url_for('appointment.edit_appointment', id=appointment.id) }}"
+               class="bg-indigo-500 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+                Edit Appointment
+            </a>
+            <a href="{{ url_for('appointment.appointments') }}"
+               class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Appointment Information -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4">Appointment Information</h2>
+            <dl class="grid grid-cols-1 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Appointment Number</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ appointment.appointment_number }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Date</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ appointment.date.strftime('%B %d, %Y') }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Time</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ appointment.time.strftime('%I:%M %p') }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Duration</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ appointment.duration }} minutes</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Status</dt>
+                    <dd class="mt-1">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                   bg-{{ appointment.status_badge_color }}-100 text-{{ appointment.status_badge_color }}-800">
+                            {{ appointment.status.title() }}
+                        </span>
+                    </dd>
+                </div>
+            </dl>
+        </div>
+
+        <!-- Patient Information -->
+        <div class="bg-gray-50 p-4 rounded-lg">
+            <h2 class="text-lg font-semibold mb-4">Patient Information</h2>
+            <dl class="grid grid-cols-1 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Name</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ appointment.patient.full_name }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Registration Number</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ appointment.patient.registration_number }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Phone</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ appointment.patient.phone or 'Not provided' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Email</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ appointment.patient.email or 'Not provided' }}</dd>
+                </div>
+            </dl>
+        </div>
+
+        <!-- Additional Information -->
+        <div class="bg-gray-50 p-4 rounded-lg md:col-span-2">
+            <h2 class="text-lg font-semibold mb-4">Additional Information</h2>
+            <dl class="grid grid-cols-1 gap-4">
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Reason for Visit</dt>
+                    <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line">{{ appointment.reason or 'No reason provided' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-sm font-medium text-gray-500">Notes</dt>
+                    <dd class="mt-1 text-sm text-gray-900 whitespace-pre-line">{{ appointment.notes or 'No notes recorded' }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+
+    {% if appointment.status == 'scheduled' %}
+    <div class="mt-6 flex justify-end">
+        <button onclick="showCancelModal('{{ appointment.id }}')"
+                class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+            Cancel Appointment
+        </button>
+    </div>
+
+    <!-- Cancel Modal -->
+    <div id="cancelModal" class="fixed z-10 inset-0 overflow-y-auto hidden">
+        <!-- Same cancel modal code as in index.html -->
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function showCancelModal(appointmentId) {
+    const modal = document.getElementById('cancelModal');
+    const form = document.getElementById('cancelForm');
+    form.action = `/appointments/${appointmentId}/cancel`;
+    modal.classList.remove('hidden');
+}
+
+function hideCancelModal() {
+    const modal = document.getElementById('cancelModal');
+    modal.classList.add('hidden');
+}
+</script>
+{% endblock %} 

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f8f9fa; padding: 20px; text-align: center; }
+        .clinic-name { color: #2563eb; font-size: 24px; font-weight: bold; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #e5e7eb; border-radius: 8px; }
+        .section-title { color: #1f2937; font-size: 18px; font-weight: bold; margin-bottom: 10px; }
+        .info-item { margin-bottom: 5px; }
+        .label { color: #6b7280; font-size: 14px; }
+        .value { color: #111827; font-weight: 500; }
+        .footer { margin-top: 30px; text-align: center; color: #6b7280; font-size: 14px; }
+        .alert { background-color: #fee2e2; color: #991b1b; padding: 15px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="clinic-name">{{ settings.clinic_name }}</div>
+        </div>
+
+        <p>Dear {{ patient.full_name }},</p>
+        
+        <div class="alert">
+            <p>This email is to confirm that a prescription ({{ prescription.prescription_number }}) dated {{ prescription.date.strftime('%B %d, %Y') }} has been deleted from your medical records.</p>
+        </div>
+
+        <p>If you didn't request this deletion or have any concerns, please contact us immediately using the information below.</p>
+
+        <div class="section">
+            <div class="section-title">Contact Information</div>
+            <div class="info-item">
+                <div class="label">Phone</div>
+                <div class="value">{{ settings.country_code }} {{ settings.phone }}</div>
+            </div>
+            <div class="info-item">
+                <div class="label">Email</div>
+                <div class="value">{{ settings.email }}</div>
+            </div>
+            {% if settings.address %}
+            <div class="info-item">
+                <div class="label">Address</div>
+                <div class="value">{{ settings.address }}</div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="footer">
+            <p>Thank you for choosing {{ settings.clinic_name }}</p>
+        </div>
+    </div>
+</body>
+</html> 
