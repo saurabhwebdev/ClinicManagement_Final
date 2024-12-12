@@ -33,3 +33,50 @@
      9. Verify installation by opening a new cmd window and typing: `wkhtmltopdf --version`
 
 ### Linux (Ubuntu/Debian):
+
+## Creating Desktop Shortcut (Easy Method)
+
+1. First install pyinstaller:
+```bash
+pip install pyinstaller
+```
+
+2. Create a launcher.py file in your app directory:
+```python
+import os
+import sys
+from subprocess import Popen
+
+def start_app():
+    # Get the directory containing the script
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Change to the app directory
+    os.chdir(app_dir)
+    
+    # Start Flask app
+    if sys.platform.startswith('win'):
+        Popen(['venv\\Scripts\\python', 'run.py'])
+    else:
+        Popen(['./venv/bin/python', 'run.py'])
+
+if __name__ == '__main__':
+    start_app()
+```
+
+3. Create executable:
+```bash
+# For Windows:
+pyinstaller --onefile --icon=app/static/images/icon.ico --name ClinicApp launcher.py
+
+# For Linux/Mac:
+pyinstaller --onefile --name ClinicApp launcher.py
+```
+
+4. Your executable will be created in the `dist` folder. Simply:
+   - Copy the executable (ClinicApp.exe for Windows or ClinicApp for Linux/Mac) to your desktop
+   - Double-click to run the application
+
+This method creates a single executable file that you can click to start the application. No need to create batch files or desktop entries.
+
+Note: Make sure to replace `app/static/images/icon.ico` with the path to your actual icon file if you have one.
