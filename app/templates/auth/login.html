@@ -5,37 +5,136 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Clinic Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
-<body class="bg-gray-100">
-    <div class="min-h-screen flex items-center justify-center">
-        <div class="bg-white p-8 rounded-lg shadow-md w-96">
-            <h1 class="text-2xl font-bold text-center mb-8">Login</h1>
-            <form method="POST" action="{{ url_for('auth.login') }}">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
-                        Email
-                    </label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                           id="email" type="email" name="email" required>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="min-h-screen flex flex-col md:flex-row">
+        <!-- Login Section -->
+        <div class="w-full md:w-1/2 flex items-center justify-center p-8">
+            <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+                <div class="text-center mb-8">
+                    <h1 class="text-3xl font-bold text-gray-800">Welcome Back</h1>
+                    <p class="text-gray-600 mt-2">Sign in to your clinic dashboard</p>
                 </div>
-                <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
-                        Password
-                    </label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
-                           id="password" type="password" name="password" required>
-                </div>
-                <div class="flex items-center justify-between">
-                    <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-6">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="email">
+                            Email Address
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                                <i class="fas fa-envelope"></i>
+                            </span>
+                            <input class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   id="email" type="email" name="email" required placeholder="doctor@clinic.com">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-semibold mb-2" for="password">
+                            Password
+                        </label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+                                <i class="fas fa-lock"></i>
+                            </span>
+                            <input class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                   id="password" type="password" name="password" required placeholder="••••••••">
+                        </div>
+                    </div>
+
+                    <button class="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition duration-200 transform hover:scale-[1.02]"
                             type="submit">
                         Sign In
                     </button>
-                    <a class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
-                       href="{{ url_for('auth.register') }}">
-                        Register
-                    </a>
+
+                    <div class="mt-6 text-center">
+                        <span class="text-gray-600">Don't have an account?</span>
+                        <a href="{{ url_for('auth.register') }}" class="text-blue-600 hover:text-blue-800 font-semibold ml-1">
+                            Register here
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="w-full md:w-1/2 bg-gradient-to-br from-blue-600 to-indigo-700 p-8 flex items-center justify-center">
+            <div class="max-w-lg text-white">
+                <h2 class="text-3xl font-bold mb-8">Streamline Your Clinic Management</h2>
+                
+                <div class="space-y-6">
+                    <!-- Patient Management -->
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 bg-white/10 p-3 rounded-lg">
+                            <i class="fas fa-user-md text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-xl mb-2">Patient Management</h3>
+                            <p class="text-blue-100">Efficiently manage patient records, medical history, and appointments in one place.</p>
+                        </div>
+                    </div>
+
+                    <!-- Appointment Scheduling -->
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 bg-white/10 p-3 rounded-lg">
+                            <i class="fas fa-calendar-alt text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-xl mb-2">Smart Scheduling</h3>
+                            <p class="text-blue-100">Streamlined appointment booking system with automated reminders and scheduling conflicts prevention.</p>
+                        </div>
+                    </div>
+
+                    <!-- Prescription Management -->
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 bg-white/10 p-3 rounded-lg">
+                            <i class="fas fa-prescription text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-xl mb-2">Digital Prescriptions</h3>
+                            <p class="text-blue-100">Create and manage digital prescriptions with complete medication history tracking.</p>
+                        </div>
+                    </div>
+
+                    <!-- Billing & Invoicing -->
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 bg-white/10 p-3 rounded-lg">
+                            <i class="fas fa-file-invoice-dollar text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-xl mb-2">Billing & Reports</h3>
+                            <p class="text-blue-100">Generate professional invoices and comprehensive reports for better financial management.</p>
+                        </div>
+                    </div>
+
+                    <!-- Email Integration -->
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 bg-white/10 p-3 rounded-lg">
+                            <i class="fas fa-envelope text-2xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-xl mb-2">Automated Communications</h3>
+                            <p class="text-blue-100">Automated email notifications for appointments, prescriptions, and invoices.</p>
+                        </div>
+                    </div>
                 </div>
-            </form>
+
+                <div class="mt-8 text-center">
+                    <p class="text-sm text-blue-100">Need help? Contact support at hellocuradent@gmail.com</p>
+                </div>
+            </div>
         </div>
     </div>
 </body>
