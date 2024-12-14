@@ -46,13 +46,8 @@ class Invoice(db.Model):
         return f"INV{new_number:04d}"
 
     def calculate_totals(self):
-        # Calculate subtotal
         self.subtotal = sum(item.total for item in self.items)
-        
-        # Calculate tax amount
         self.tax_amount = self.subtotal * (self.tax_rate / 100)
-        
-        # Calculate total with tax and discount
         self.total = self.subtotal + self.tax_amount - self.discount
 
 class InvoiceItem(db.Model):

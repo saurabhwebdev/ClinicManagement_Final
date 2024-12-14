@@ -23,6 +23,7 @@ def create_app():
     from app.routes.appointment import appointment_bp
     from app.routes.prescription import prescription_bp
     from app.routes.invoice import invoice_bp
+    from app.routes.billing import billing_bp
 
     # Register blueprints
     app.register_blueprint(auth_bp)
@@ -30,6 +31,7 @@ def create_app():
     app.register_blueprint(appointment_bp)
     app.register_blueprint(prescription_bp)
     app.register_blueprint(invoice_bp)
+    app.register_blueprint(billing_bp)
 
     # Add context processor for global template variables
     @app.context_processor

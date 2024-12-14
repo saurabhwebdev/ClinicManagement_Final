@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Admin Panel</h1>
+        <a href="{{ url_for('main.admin_logout') }}" 
+           class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700">
+            Exit Admin Mode
+        </a>
+    </div>
+
+    <!-- System Status -->
+    <div class="bg-gray-50 p-4 rounded-lg mb-6">
+        <h2 class="text-lg font-semibold mb-4">System Status</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-sm font-medium text-gray-500">Total Users</h3>
+                <p class="text-2xl font-bold">{{ users|length }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-sm font-medium text-gray-500">Trial Users</h3>
+                <p class="text-2xl font-bold">{{ users|selectattr('is_trial', 'true')|list|length }}</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-sm font-medium text-gray-500">Active Staff</h3>
+                <p class="text-2xl font-bold">{{ users|selectattr('role', 'equalto', 'staff')|list|length }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Management -->
+    <div class="mt-8">
+        <h2 class="text-lg font-semibold mb-4">User Management</h2>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trial Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Trial End</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for user in users %}
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <form id="emailForm{{ user.id }}" class="flex items-center" 
+                                  action="{{ url_for('main.update_user', user_id=user.id) }}" method="POST">
+                                <input type="hidden" name="action" value="update_email">
+                                <input type="email" name="email" value="{{ user.email }}" 
+                                       class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm mr-2">
+                                <button type="submit" class="text-blue-600 hover:text-blue-900">Save</button>
+                            </form>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <form action="{{ url_for('main.update_user', user_id=user.id) }}" method="POST">
+                                <input type="hidden" name="action" value="update_role">
+                                <select name="role" onchange="this.form.submit()" 
+                                        class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                    <option value="staff" {% if user.role == 'staff' %}selected{% endif %}>Staff</option>
+                                    <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <form action="{{ url_for('main.update_user', user_id=user.id) }}" method="POST">
+                                <input type="hidden" name="action" value="update_trial">
+                                <select name="is_trial" onchange="this.form.submit()" 
+                                        class="border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                    <option value="true" {% if user.is_trial %}selected{% endif %}>Active</option>
+                                    <option value="false" {% if not user.is_trial %}selected{% endif %}>Inactive</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ user.trial_end.strftime('%Y-%m-%d %H:%M') if user.trial_end else 'N/A' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            {% if user.email != 'admin@gmail.com' %}
+                            <form action="{{ url_for('main.delete_user', user_id=user.id) }}" method="POST" 
+                                  class="inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
+                                <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                            </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %} 

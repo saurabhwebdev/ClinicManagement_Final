@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Upgrade Your Account</h1>
+    </div>
+
+    <div class="bg-orange-50 border border-orange-200 rounded-md p-4 mb-6">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-orange-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-orange-800">Trial Account</h3>
+                <div class="mt-2 text-sm text-orange-700">
+                    <p>Your trial period will expire on {{ current_user.trial_end.strftime('%B %d, %Y at %I:%M %p') }}.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Basic Plan -->
+        <div class="border rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <h2 class="text-xl font-bold mb-4">Basic</h2>
+            <p class="text-3xl font-bold mb-4">₹999<span class="text-sm font-normal">/month</span></p>
+            <ul class="space-y-3 mb-6">
+                <li class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Up to 100 patients
+                </li>
+                <!-- Add more features -->
+            </ul>
+            <button class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
+                Select Basic
+            </button>
+        </div>
+
+        <!-- Pro Plan -->
+        <div class="border rounded-lg p-6 bg-blue-50 hover:shadow-lg transition-shadow relative">
+            <div class="absolute top-0 right-0 bg-blue-500 text-white px-3 py-1 rounded-bl-lg rounded-tr-lg text-sm">
+                Popular
+            </div>
+            <h2 class="text-xl font-bold mb-4">Pro</h2>
+            <p class="text-3xl font-bold mb-4">₹1,999<span class="text-sm font-normal">/month</span></p>
+            <ul class="space-y-3 mb-6">
+                <li class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Unlimited patients
+                </li>
+                <!-- Add more features -->
+            </ul>
+            <button class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
+                Select Pro
+            </button>
+        </div>
+
+        <!-- Enterprise Plan -->
+        <div class="border rounded-lg p-6 hover:shadow-lg transition-shadow">
+            <h2 class="text-xl font-bold mb-4">Enterprise</h2>
+            <p class="text-3xl font-bold mb-4">Custom</p>
+            <ul class="space-y-3 mb-6">
+                <li class="flex items-center">
+                    <svg class="h-5 w-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Custom features
+                </li>
+                <!-- Add more features -->
+            </ul>
+            <button class="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600">
+                Contact Sales
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %} 

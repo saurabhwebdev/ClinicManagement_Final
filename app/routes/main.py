@@ -1,9 +1,9 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, render_template_string, make_response
-from flask_login import login_required
+from flask import Blueprint, render_template, request, flash, redirect, url_for, render_template_string, make_response, session
+from flask_login import login_required, current_user
 from app.models.settings import ClinicSettings
 from app import db
 import json
-from datetime import datetime, time, date
+from datetime import datetime, time, date, timedelta
 from app.models.patient import Patient
 from app.models.appointment import Appointment
 from app.models.prescription import Prescription
@@ -12,8 +12,19 @@ from app.models.invoice import Invoice
 from sqlalchemy.sql import func
 from sqlalchemy import extract
 import pdfkit
+from functools import wraps
+from app.models.user import User
 
 main_bp = Blueprint('main', __name__)
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get('is_admin'):
+            flash('Admin login required', 'error')
+            return redirect(url_for('main.admin_login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 @main_bp.route('/')
 @main_bp.route('/dashboard')
@@ -348,6 +359,17 @@ def invoices():
 @login_required
 def settings():
     settings = ClinicSettings.get_settings()
+    
+    # Debug print to verify data
+    print(f"""
+    Debug Settings:
+    Current User: {current_user.username}
+    Email: {current_user.email}
+    Trial Status: {current_user.is_trial}
+    Trial End: {current_user.trial_end}
+    Role: {current_user.role}
+    """)
+    
     if not settings:
         settings = ClinicSettings(
             clinic_name="My Clinic",
@@ -394,7 +416,9 @@ def settings():
         flash('Settings updated successfully!', 'success')
         return redirect(url_for('main.settings'))
 
-    return render_template('dashboard/settings.html', settings=settings) 
+    return render_template('dashboard/settings.html',
+                         settings=settings,
+                         current_user=current_user)
 
 @main_bp.route('/reports')
 @login_required
@@ -493,3 +517,186 @@ def generate_financial_report():
     response.headers['Content-Disposition'] = f'attachment; filename=financial_report_{start_date}_to_{end_date}.pdf'
     
     return response 
+
+@main_bp.route('/test_email', methods=['POST'])
+@login_required
+def test_email():
+    settings = ClinicSettings.get_settings()
+    try:
+        success = send_email(
+            to_email=settings.email,
+            subject="Test Email",
+            body="This is a test email from your clinic management system.",
+            html_body="<h1>Test Email</h1><p>This is a test email from your clinic management system.</p>"
+        )
+        if success:
+            flash('Test email sent successfully!', 'success')
+        else:
+            flash('Failed to send test email. Check server logs for details.', 'error')
+    except Exception as e:
+        flash(f'Error sending test email: {str(e)}', 'error')
+    return redirect(url_for('main.settings')) 
+
+@main_bp.route('/delete_account', methods=['POST'])
+@login_required
+def delete_account():
+    password = request.form.get('password')
+    
+    # Verify password
+    if not current_user.check_password(password):
+        flash('Incorrect password. Account deletion cancelled.', 'error')
+        return redirect(url_for('main.settings'))
+    
+    try:
+        # Delete related records first
+        # Get all appointments
+        appointments = Appointment.query.filter_by(patient_id=current_user.id).all()
+        for appointment in appointments:
+            db.session.delete(appointment)
+        
+        # Get all prescriptions
+        prescriptions = Prescription.query.filter_by(patient_id=current_user.id).all()
+        for prescription in prescriptions:
+            db.session.delete(prescription)
+        
+        # Get all invoices
+        invoices = Invoice.query.filter_by(patient_id=current_user.id).all()
+        for invoice in invoices:
+            db.session.delete(invoice)
+        
+        # Finally delete the user
+        db.session.delete(current_user)
+        db.session.commit()
+        
+        # Send confirmation email
+        try:
+            settings = ClinicSettings.get_settings()
+            html_content = render_template('emails/account_deletion.html',
+                                        user=current_user,
+                                        settings=settings)
+            
+            send_email(
+                to_email=current_user.email,
+                subject=f"Account Deleted - {settings.clinic_name}",
+                body="Your account has been successfully deleted.",
+                html_body=html_content
+            )
+        except Exception as e:
+            print(f"Failed to send deletion confirmation email: {str(e)}")
+        
+        logout_user()
+        flash('Your account has been successfully deleted.', 'success')
+        return redirect(url_for('auth.login'))
+        
+    except Exception as e:
+        db.session.rollback()
+        flash('An error occurred while deleting your account. Please try again.', 'error')
+        print(f"Account deletion error: {str(e)}")
+        return redirect(url_for('main.settings')) 
+
+@main_bp.route('/admin/login', methods=['GET', 'POST'])
+@login_required
+def admin_login():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        
+        if email == 'admin@gmail.com' and password == 'admin@123':
+            session['is_admin'] = True
+            flash('Successfully logged in as admin', 'success')
+            return redirect(url_for('main.admin'))
+        else:
+            flash('Invalid admin credentials', 'error')
+            
+    return render_template('dashboard/admin_login.html')
+
+@main_bp.route('/admin/logout')
+@login_required
+def admin_logout():
+    session.pop('is_admin', None)
+    flash('Logged out of admin panel', 'success')
+    return redirect(url_for('main.dashboard'))
+
+@main_bp.route('/admin')
+@login_required
+@admin_required
+def admin():
+    users = User.query.all()
+    return render_template('dashboard/admin.html', users=users)
+
+@main_bp.route('/admin/update_user/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def update_user(user_id):
+    user = User.query.get_or_404(user_id)
+    
+    if user.email == 'admin@gmail.com':
+        flash('Cannot modify admin user', 'error')
+        return redirect(url_for('main.admin'))
+    
+    action = request.form.get('action')
+    
+    if action == 'update_role':
+        user.role = request.form.get('role')
+    elif action == 'update_trial':
+        user.is_trial = request.form.get('is_trial') == 'true'
+        if user.is_trial:
+            user.trial_start = datetime.utcnow()
+            user.trial_end = user.trial_start + timedelta(days=3)
+    elif action == 'update_email':
+        new_email = request.form.get('email')
+        if User.query.filter_by(email=new_email).first() and new_email != user.email:
+            flash('Email already exists', 'error')
+            return redirect(url_for('main.admin'))
+        user.email = new_email
+    
+    db.session.commit()
+    flash('User updated successfully', 'success')
+    return redirect(url_for('main.admin'))
+
+@main_bp.route('/admin/delete_user/<int:user_id>', methods=['POST'])
+@login_required
+@admin_required
+def delete_user(user_id):
+    user = User.query.get_or_404(user_id)
+    
+    if user.email == 'admin@gmail.com':
+        flash('Cannot delete admin user', 'error')
+        return redirect(url_for('main.admin'))
+    
+    db.session.delete(user)
+    db.session.commit()
+    flash('User deleted successfully', 'success')
+    return redirect(url_for('main.admin')) 
+
+@main_bp.route('/delete_all_data', methods=['POST'])
+@login_required
+def delete_all_data():
+    # Add admin check
+    if current_user.role != 'admin':
+        flash('Only administrators can delete all data.', 'error')
+        return redirect(url_for('main.settings'))
+        
+    password = request.form.get('password')
+    
+    # Verify password
+    if not current_user.check_password(password):
+        flash('Incorrect password. Data deletion cancelled.', 'error')
+        return redirect(url_for('main.settings'))
+    
+    try:
+        # Delete all records except users and settings
+        Invoice.query.delete()
+        Prescription.query.delete()
+        Appointment.query.delete()
+        Patient.query.delete()
+        
+        db.session.commit()
+        flash('All data has been successfully deleted.', 'success')
+        
+    except Exception as e:
+        db.session.rollback()
+        flash('An error occurred while deleting data. Please try again.', 'error')
+        print(f"Data deletion error: {str(e)}")
+        
+    return redirect(url_for('main.settings')) 

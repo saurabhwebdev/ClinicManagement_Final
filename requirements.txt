@@ -8,3 +8,4 @@ email-validator
 flask-migrate
 pdfkit==1.0.0
 wkhtmltopdf==0.2 
+psutil==5.9.8

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        /* Add your email styles here */
+    </style>
+</head>
+<body>
+    <h2>Welcome to {{ settings.clinic_name }}!</h2>
+    
+    <p>Dear {{ user.username }},</p>
+    
+    <p>Thank you for registering! Your 3-day trial period has started and will end on <strong>{{ trial_end }}</strong>.</p>
+    
+    <h3>During your trial, you'll have access to:</h3>
+    <ul>
+        <li>Patient Management</li>
+        <li>Appointment Scheduling</li>
+        <li>Prescription Management</li>
+        <li>Billing & Invoicing</li>
+    </ul>
+    
+    <p>Feel free to explore all features and contact us at {{ settings.email }} if you need any assistance.</p>
+    
+    <p>Thank you for choosing our platform!</p>
+    
+    <p>Best regards,<br>
+    {{ settings.clinic_name }} Team</p>
+</body>
+</html> 

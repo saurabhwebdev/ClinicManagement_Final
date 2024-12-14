@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #f8f9fa; padding: 20px; text-align: center; }
+        .clinic-name { color: #2563eb; font-size: 24px; font-weight: bold; }
+        .content { margin: 20px 0; }
+        .footer { margin-top: 30px; text-align: center; color: #6b7280; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="clinic-name">{{ settings.clinic_name }}</div>
+        </div>
+
+        <div class="content">
+            <p>Dear {{ user.username }},</p>
+            
+            <p>This email confirms that your account at {{ settings.clinic_name }} has been successfully deleted. All your data has been permanently removed from our systems.</p>
+            
+            <p>If you didn't request this deletion or believe this was done in error, please contact us immediately:</p>
+            
+            <p>
+                Phone: {{ settings.country_code }} {{ settings.phone }}<br>
+                Email: {{ settings.email }}
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>Thank you for using our services</p>
+        </div>
+    </div>
+</body>
+</html> 

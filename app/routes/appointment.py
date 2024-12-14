@@ -179,7 +179,6 @@ def edit_appointment(id):
                 html_content = render_template_string(
                     template,
                     appointment=appointment,
-                    patient=appointment.patient,
                     settings=settings,
                     changes=changes
                 )
